@@ -10,7 +10,7 @@ DOTFILES_DIR="$HOME/.local/share/dotfiles"
 log_info "Setting up initial theme (everforest)..."
 mkdir -p "$DOTFILES_DIR/current"
 ln -snf "$DOTFILES_DIR/themes/everforest" "$DOTFILES_DIR/current/theme"
-ln -snf "$DOTFILES_DIR/current/theme/backgrounds/1-everforest.jpg" "$DOTFILES_DIR/current/background"
+ln -snf "$DOTFILES_DIR/current/theme/backgrounds/1.png" "$DOTFILES_DIR/current/background"
 
 mkdir -p "$HOME/.config/nvim/lua/plugins"
 mkdir -p "$HOME/.config/btop/themes"
@@ -23,6 +23,8 @@ ln -snf "$DOTFILES_DIR/current/theme/btop.theme" "$HOME/.config/btop/themes/curr
 ln -snf "$DOTFILES_DIR/current/theme/mako.ini" "$HOME/.config/mako/config"
 ln -snf "$HOME/.config/starship/configs/config-default.toml" "$HOME/.config/starship.toml"
 
+gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
+gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"
 gsettings set org.gnome.desktop.interface icon-theme "Yaru-sage"
 gsettings set org.gnome.desktop.interface font-name 'JetBrains Mono Nerd Font 11'
 gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrains Mono Nerd Font 11'

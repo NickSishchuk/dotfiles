@@ -2,7 +2,7 @@
 
 [![Arch Linux](https://img.shields.io/badge/Arch-Linux-1793D1?logo=arch-linux&logoColor=white)](https://archlinux.org/)
 
-Dotfiles setup with static and dynamic themes and plenty of useful scripts.
+Dotfiles setup with a hardcoded Everforest theme and plenty of useful scripts.
 
 [Credits - read here please](#credits)
 
@@ -43,7 +43,6 @@ Quick info:
 - [Screenshots & Videos](#screenshots--videos)
 - [Keybinds](#keybinds)
 - [Theming & Customization](#theming--customization)
-  - [Changing Themes](#changing-themes)
   - [Customizing Configs](#customizing-configs)
 - [Credits](#credits)
 
@@ -51,8 +50,8 @@ Quick info:
 
 ## Features
 
-- **Dynamic Theming System** - Switch between static themes or use dynamic theming with Matugen and Pywal
-- **Utility Scripts** - Interactive package management; theming; setup of Postgres & database backup and restoration, Docker, Node.js; video download (with yt-dlp), video and image transcoding (using handbrakecli and imagemagick), interactive backups with fzf
+- **Everforest Theme** - Hardcoded Everforest theme with the Omarchy waybar style, plus a wallpaper picker (Waypaper) and cycler for your own backgrounds
+- **Utility Scripts** - Interactive package management; setup of Postgres & database backup and restoration, Docker, Node.js; video download (with yt-dlp), video and image transcoding (using handbrakecli and imagemagick), interactive backups with fzf
 - **Modular ZSH Config** - Zsh setup with some nice custom functions like `cp2c` (copy file content to clipboard - c2pc <file_path>) and `c2f` (clipboard content to file c2f <file_path>)
 - **Application Configs** - Configs for Ghostty, Waybar, Walker, Elephant, lazyvim and more
 
@@ -107,8 +106,7 @@ The installer [detects your hardware](install/setup-by-hardware):
 <summary><b>Configuration & Theming</b></summary>
 
 - Replaces configuration files in `~/.config` with the [config](config) directory contents
-- Sets up static and dynamic themes via [theme setup](install/setup-theme)
-- Configures symlinks for theme management
+- Sets up the Everforest theme via [theme setup](install/setup-theme)
 - Some files live in the [default](default) directory - these are git synced and will get overwritten with updates
 </details>
 
@@ -116,7 +114,7 @@ The installer [detects your hardware](install/setup-by-hardware):
 <summary><b>Scripts</b></summary>
 
 A big collection of scripts, mainly used with Walker & Elephant. If installing manually make sure to add the scripts folder to path:
-- **Theme Management** - Switch themes, cycle backgrounds, apply dynamic theming
+- **Wallpaper** - Cycle through your backgrounds
 - **Development** - PostgreSQL setup/backup/restore, Docker setup, Node.js setup
 - **Package Management** - Install/remove packages interactively
 - **Media Tools** - Video downloads (yt-dlp), transcoding (ffmpeg, handbrake-cli)
@@ -147,22 +145,15 @@ You can manually use the dotfiles without the installer:
 
 ## Screenshots & videos
 
-### Waybar themes
+### Waybar
 Omarchy waybar
 ![Waybar1](demo/waybar-omarchy.png)
-Eli dotfiles waybar
-![Waybar2](demo/waybar-eli.png)
-Modern waybar config
-![Waybar3](demo/waybar-modern.png)
 
 ### Lazyvim
 ![Lazyvim](demo/lazyvim.png)
 
 ### Menu overview
 https://github.com/user-attachments/assets/9b9cb437-a3e4-4cd7-90f1-80175036e196
-
-### Dynamic Theming
-https://github.com/user-attachments/assets/044216d5-44a6-4b56-99d0-a820ceef3a68
 
 ### Application Launcher - Walker
 ![Walker](demo/walker.png)
@@ -195,7 +186,7 @@ Most important ones:
 - SUPER + E = File manager
 - SUPER + V = Clipboard
 - SUPER + ALT + Space = Menu
-- SUPER + CTRL + W = Open Waypaper (to trigger dynamic color update - theme must be set to Matugen or Pywal)
+- SUPER + CTRL + W = Open Waypaper (pick a wallpaper from your backgrounds folder)
 
 Walker bindings - `ctrl + x` to go back from submenu
 
@@ -203,11 +194,7 @@ Walker bindings - `ctrl + x` to go back from submenu
 
 ## Theming & Customization
 
-### Changing Themes
-
-The setup includes both static and dynamic theming:
- - Open walker and select a theme you like, you can pick between static ones or Matugen/Pywal
- - Also, you can pick 3 different waybar themes and 2 fastfetch presets
+Theming is hardcoded to Everforest with the Omarchy waybar style - no theme switcher, no dynamic theming. Use "Next wallpaper" (or Waypaper) to cycle/pick between your own backgrounds in [themes/everforest/backgrounds](themes/everforest/backgrounds).
 
 ### Customizing Configs
 
@@ -218,7 +205,7 @@ The setup includes both static and dynamic theming:
 
 ## Credits
 
-By no means am I claiming I created all of this myself - I've taken the whole static theming system & some scripts from [Omarchy](https://omarchy.org) - of course a lot are my own or heavily changed. I wanted something more of my own, that I can customize more easily without installing a full distro. Omarchy is an awesome project, and if you haven't heard of it, you should definitely check it out!
+By no means am I claiming I created all of this myself - the waybar style and some scripts originally came from [Omarchy](https://omarchy.org) - of course a lot are my own or heavily changed. I wanted something more of my own, that I can customize more easily without installing a full distro. Omarchy is an awesome project, and if you haven't heard of it, you should definitely check it out!
 
 Other projects that I really like:
 - https://github.com/mylinuxforwork

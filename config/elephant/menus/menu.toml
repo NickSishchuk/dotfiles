@@ -24,11 +24,6 @@ text = "Remove package"
 actions = { "pkg-remove" = "alacritty --class local.floating -e pkg-remove" }
 
 [[entries]]
-icon = "󰸌"
-text = "Change themes"
-actions = { "change-themes" = "walker --theme menus -m menus:themes --width 295 --minheight 1 --maxheight 600" }
-
-[[entries]]
 icon = ""
 text = "Next wallpaper"
 actions = { "next-wallpaper" = "theme-bg-next" }
