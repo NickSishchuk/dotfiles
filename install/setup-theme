@@ -12,21 +12,21 @@ mkdir -p "$DOTFILES_DIR/current"
 ln -snf "$DOTFILES_DIR/themes/everforest" "$DOTFILES_DIR/current/theme"
 ln -snf "$DOTFILES_DIR/current/theme/backgrounds/1.png" "$DOTFILES_DIR/current/background"
 
-mkdir -p "$HOME/.config/nvim/lua/plugins"
 mkdir -p "$HOME/.config/btop/themes"
 mkdir -p "$HOME/.config/mako"
 mkdir -p "$HOME/.config/alacritty"
 mkdir -p "$HOME/.config/starship/configs"
 
-ln -snf "$DOTFILES_DIR/current/theme/neovim.lua" "$HOME/.config/nvim/lua/plugins/theme.lua"
 ln -snf "$DOTFILES_DIR/current/theme/btop.theme" "$HOME/.config/btop/themes/current.theme"
 ln -snf "$DOTFILES_DIR/current/theme/mako.ini" "$HOME/.config/mako/config"
 ln -snf "$HOME/.config/starship/configs/config-default.toml" "$HOME/.config/starship.toml"
 
-gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
-gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"
-gsettings set org.gnome.desktop.interface icon-theme "Yaru-sage"
-gsettings set org.gnome.desktop.interface font-name 'JetBrains Mono Nerd Font 11'
-gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrains Mono Nerd Font 11'
+# gsettings needs a D-Bus session bus; guard so a missing bus (e.g. no login
+# session yet) doesn't abort theme setup before the symlinks above take effect.
+gsettings set org.gnome.desktop.interface color-scheme "prefer-dark" || log_detail "gsettings unavailable, skipping color-scheme"
+gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark" || log_detail "gsettings unavailable, skipping gtk-theme"
+gsettings set org.gnome.desktop.interface icon-theme "Yaru-sage" || log_detail "gsettings unavailable, skipping icon-theme"
+gsettings set org.gnome.desktop.interface font-name 'JetBrains Mono Nerd Font 11' || log_detail "gsettings unavailable, skipping font-name"
+gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrains Mono Nerd Font 11' || log_detail "gsettings unavailable, skipping monospace-font-name"
 
 log_success "Initial theme set (everforest)"

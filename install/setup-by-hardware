@@ -36,7 +36,14 @@ sed -i '/source = .*\/\(laptop-keybindings\.conf\|desktop-keybindings\.conf\)$/d
 # Insert correct ones for current hardware
 sed -i "/source = .*autostart\\.conf/a source = ~/.local/share/dotfiles/default/hypr/conf/${ENV_CONF}\\nsource = ~/.local/share/dotfiles/default/hypr/conf/${KEYBIND_CONF}" "$HYPRLAND_CONF"
 
-log_success "Hardware-specific configuration applied"
+# sed's address-based insert is a silent no-op if the anchor line isn't found
+# (e.g. hyprland.conf was hand-edited). That would mean no env config and no
+# keybindings get sourced at all, with zero error — verify it actually landed.
+if grep -q "${ENV_CONF}" "$HYPRLAND_CONF" && grep -q "${KEYBIND_CONF}" "$HYPRLAND_CONF"; then
+  log_success "Hardware-specific configuration applied"
+else
+  log_error "Could not insert ${ENV_CONF}/${KEYBIND_CONF} into hyprland.conf (anchor line not found) — env vars and keybindings will NOT load until fixed manually"
+fi
 
 # Auto-configure monitors if Hyprland is running
 if command -v hyprctl &>/dev/null && hyprctl monitors &>/dev/null; then
@@ -92,5 +99,6 @@ if command -v hyprctl &>/dev/null && hyprctl monitors &>/dev/null; then
     log_detail "Could not detect monitor resolution, keeping default config"
   fi
 else
-  log_detail "Hyprland not running, keeping default monitor config"
+  log_detail "Hyprland not running yet, keeping default monitor config"
+  log_detail "Once you've logged into Hyprland, re-run this to auto-detect: bash ~/.local/share/dotfiles/install/setup-by-hardware"
 fi
