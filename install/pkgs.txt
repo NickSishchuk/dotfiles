@@ -46,10 +46,8 @@ satty
 kooha
 zenity
 uwsm
-python-pywal16
 gjs
 waypaper
-matugen-bin
 impala
 loupe
 

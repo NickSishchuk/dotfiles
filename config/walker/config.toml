@@ -18,15 +18,9 @@ anchor_right = true
 "default" = { input = "Search", list = "No Results" }
 "menus:system" = { input = "System", list = "No Results" }
 "menus:menu" = { input = "Search", list = "No Results" }
-"menus:backups" = { input = "Backups", list = "No Results" }
 "menus:capture" = { input = "Capture", list = "No Results" }
-"menus:tools" = { input = "Tools", list = "No Results" }
-"menus:postgres" = { input = "Postgres", list = "No Results" }
 "menus:screenshots" = { input = "Screenshots", list = "No Results" }
-"menus:setup" = { input = "Setup", list = "No Results" }
 "menus:themes" = { input = "Themes", list = "No Results" }
-"menus:transcode" = { input = "Transcode media", list = "No Results" }
-"menus:ollama" = { input = "Ollama", list = "No Results" }
 
 [keybinds]
 close = ["Escape"]
@@ -120,30 +114,10 @@ clipboard = [
   { action = "provider:menus:menu", bind = "ctrl x", global = true, after = "ClearReload" },
 ]
 
-"menus:setup" = [
-  { action = "postgres", bind = "Return" },
-  { action = "docker", bind = "Return" },
-  { action = "nodejs", bind = "Return" },
-  { action = "provider:menus:menu", bind = "ctrl x", global = true, after = "ClearReload" },
-]
-
-"menus:postgres" = [
-  { action = "postgres-setup", bind = "Return" },
-  { action = "postgres-restore-db", bind = "Return" },
-  { action = "postgres-backup", bind = "Return" },
-  { action = "provider:menus:setup", bind = "ctrl x", global = true, after = "ClearReload" },
-]
-
 "menus:capture" = [
   { action = "screenshot", bind = "Return" },
   { action = "record", bind = "Return" },
   { action = "provider:menus:menu", bind = "ctrl x", global = true, after = "ClearReload" },
-]
-
-"menus:backups" = [
-  { action = "backup-files", bind = "Return" },
-  { action = "backup-restore", bind = "Return" },
-  { action = "provider:menus:tools", bind = "ctrl x", global = true, after = "ClearReload" },
 ]
 
 "menus:themes" = [
@@ -154,40 +128,10 @@ clipboard = [
   { action = "provider:menus:menu", bind = "ctrl x", global = true, after = "ClearReload" },
 ]
 
-"menus:tools" = [
-  { action = "download-video", bind = "Return" },
-  { action = "transcode", bind = "Return" },
-  { action = "write-iso", bind = "Return" },
-  { action = "backups", bind = "Return" },
-  { action = "webapp-install", bind = "Return" },
-  { action = "ollama", bind = "Return" },
-  { action = "provider:menus:menu", bind = "ctrl x", global = true, after = "ClearReload" },
-]
-
-"menus:transcode" = [
-  { action = "transcode-video", bind = "Return" },
-  { action = "transcode-image", bind = "Return" },
-  { action = "provider:menus:tools", bind = "ctrl x", global = true, after = "ClearReload" },
-]
-
-"menus:ollama" = [
-  { action = "chat", bind = "Return" },
-  { action = "select-default", bind = "Return" },
-  { action = "list-models", bind = "Return" },
-  { action = "pull-model", bind = "Return" },
-  { action = "remove-model", bind = "Return" },
-  { action = "install", bind = "Return" },
-  { action = "provider:menus:tools", bind = "ctrl x", global = true, after = "ClearReload" },
-]
-
 "menus:menu" = [
   { action = "update", bind = "Return" },
-  { action = "pkg-install", bind = "Return" },
-  { action = "pkg-install-aur", bind = "Return" },
-  { action = "pkg-remove", bind = "Return" },
   { action = "change-themes", bind = "Return" },
   { action = "capture", bind = "Return" },
-  { action = "setup", bind = "Return" },
   { action = "keybindings", bind = "Return" },
   { action = "system", bind = "Return" },
 ]

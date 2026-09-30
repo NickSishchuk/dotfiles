@@ -30,6 +30,22 @@ ensure_gum
 # Authenticate sudo early to cache credentials
 sudo -v
 
+FAILED_PACKAGES=()
+FAILED_STEPS=()
+
+# Runs a setup-* script. A failure here is logged and remembered, but does not
+# abort the rest of the install — one flaky step shouldn't take down steps
+# that have nothing to do with it.
+run_step() {
+  local step_name="$1"
+  local script_name="$2"
+
+  if ! bash "$SCRIPT_DIR/$script_name"; then
+    log_error "$step_name failed — continuing with remaining steps"
+    FAILED_STEPS+=("$step_name")
+  fi
+}
+
 _installParu() {
   if ! is_installed "base-devel"; then
     log_info "Installing base-devel..."
@@ -54,7 +70,6 @@ _installParu() {
 _installPackages() {
   local packages=()
   local batch_size=15
-  local failed_packages=()
 
   while IFS= read -r pkg || [ -n "$pkg" ]; do
     [[ -z "$pkg" || "$pkg" =~ ^# ]] && continue
@@ -71,16 +86,21 @@ _installPackages() {
         paru --noconfirm --needed -S "${packages[@]}" 2>&1; then
         # Retry failed batch one-by-one to identify culprit
         for pkg in "${packages[@]}"; do
-          paru --noconfirm --needed -S "${pkg}" &>/dev/null || failed_packages+=("$pkg")
+          paru --noconfirm --needed -S "${pkg}" &>/dev/null || FAILED_PACKAGES+=("$pkg")
         done
       fi
       packages=()
     fi
   done <"$1"
 
-  # Install remaining packages
+  # Install remaining packages (tracked the same way, not swallowed with `|| true`)
   if [ ${#packages[@]} -gt 0 ]; then
-    paru --noconfirm --needed -S "${packages[@]}" 2>&1 || true
+    if ! spinner "Installing remaining ${#packages[@]} package(s)..." \
+      paru --noconfirm --needed -S "${packages[@]}" 2>&1; then
+      for pkg in "${packages[@]}"; do
+        paru --noconfirm --needed -S "${pkg}" &>/dev/null || FAILED_PACKAGES+=("$pkg")
+      done
+    fi
   fi
 }
 
@@ -88,7 +108,7 @@ clear
 log_header "Dotfiles Installation"
 
 START_TIME=$(date +%s)
-TOTAL_STEPS=7
+TOTAL_STEPS=6
 CURRENT_STEP=0
 
 if ! is_installed "paru"; then
@@ -101,6 +121,14 @@ CURRENT_STEP=$((CURRENT_STEP + 1))
 log_step "[$CURRENT_STEP/$TOTAL_STEPS] Installing packages"
 _installPackages "$SCRIPT_DIR/pkgs.txt"
 
+if [ ${#FAILED_PACKAGES[@]} -gt 0 ]; then
+  log_error "Failed to install ${#FAILED_PACKAGES[@]} package(s):"
+  for pkg in "${FAILED_PACKAGES[@]}"; do
+    log_detail "$pkg"
+  done
+  log_detail "Install these manually later with: paru -S <package>"
+fi
+
 if [ -f "$DOTFILES_DIR/default/.bashrc" ]; then
   backup_file "$HOME/.bashrc" 2>/dev/null || true
   cp "$DOTFILES_DIR/default/.bashrc" "$HOME/.bashrc"
@@ -108,28 +136,24 @@ if [ -f "$DOTFILES_DIR/default/.bashrc" ]; then
 fi
 
 CURRENT_STEP=$((CURRENT_STEP + 1))
-log_step "[$CURRENT_STEP/$TOTAL_STEPS] Setting up LazyVim"
-bash "$SCRIPT_DIR/setup-lazyvim"
-
-CURRENT_STEP=$((CURRENT_STEP + 1))
 log_step "[$CURRENT_STEP/$TOTAL_STEPS] Copying configuration files"
-bash "$SCRIPT_DIR/setup-config"
+run_step "Copying configuration files" "setup-config"
 
 CURRENT_STEP=$((CURRENT_STEP + 1))
 log_step "[$CURRENT_STEP/$TOTAL_STEPS] Hardware based setup"
-bash "$SCRIPT_DIR/setup-by-hardware"
+run_step "Hardware based setup" "setup-by-hardware"
 
 CURRENT_STEP=$((CURRENT_STEP + 1))
 log_step "[$CURRENT_STEP/$TOTAL_STEPS] Creating theme symlinks"
-bash "$SCRIPT_DIR/setup-theme"
+run_step "Creating theme symlinks" "setup-theme"
 
 CURRENT_STEP=$((CURRENT_STEP + 1))
 log_step "[$CURRENT_STEP/$TOTAL_STEPS] Copying applications to ~/.local/share/applications"
-bash "$SCRIPT_DIR/setup-applications"
+run_step "Copying applications" "setup-applications"
 
 CURRENT_STEP=$((CURRENT_STEP + 1))
 log_step "[$CURRENT_STEP/$TOTAL_STEPS] Configuring system"
-bash "$SCRIPT_DIR/setup-system"
+run_step "Configuring system" "setup-system"
 
 hyprctl reload 2>/dev/null || log_detail "Hyprland not running, skipping reload"
 
@@ -143,6 +167,15 @@ log_header "Installation Complete!"
 echo
 log_success "Installed in ${MINUTES}m ${SECONDS}s"
 echo
+
+if [ ${#FAILED_STEPS[@]} -gt 0 ]; then
+  log_error "${#FAILED_STEPS[@]} step(s) had errors and were skipped:"
+  for step in "${FAILED_STEPS[@]}"; do
+    log_detail "$step"
+  done
+  log_detail "Check the output above, fix manually, and re-run the affected setup script if needed"
+  echo
+fi
 
 # Load backup info from session file for display
 source "$HOME/.local/share/dotfiles/.dotfiles-backup-session"
