@@ -2,24 +2,9 @@
 
 [![Arch Linux](https://img.shields.io/badge/Arch-Linux-1793D1?logo=arch-linux&logoColor=white)](https://archlinux.org/)
 
-Dotfiles setup with a hardcoded Everforest theme and plenty of useful scripts.
+Dotfiles setup with a hardcoded Everforest theme and a small set of useful scripts.
 
-[Credits - read here please](#credits)
-
-<table>
-  <tr>
-    <td><img src="demo/1.png" width="400"/></td>
-    <td><img src="demo/8.png" width="400"/></td>
-  </tr>
-  <tr>
-    <td><img src="demo/4.png" width="400"/></td>
-    <td><img src="demo/2.png" width="400"/></td>
-  </tr>
-  <tr>
-    <td><img src="demo/6.png" width="400"/></td>
-    <td><img src="demo/3.png" width="400"/></td>
-  </tr>
-</table>
+<img src="demo/2.png" width="600"/>
 
 Quick info:
 - [bin](bin) - all scripts live here, it is added to path in uwsm config
@@ -28,19 +13,17 @@ Quick info:
 - [setup-applications](install/setup-applications) - hides some annoying applications from launcher
 - [setup-by-hardware](install/setup-by-hardware) - sets up monitors, keybindings, hypr enviroments
 - [setup-config](install/setup-config) - copies full config into ~/.config
-- [setup-lazyvim](install/setup-lazyvim) - lazyvim setup
 - [setup-nvidia](install/setup-nvidia) - nvidia specific setup
 - [setup-system](install/setup-system) - ufw, pacman.conf, triggers nvidia-setup if on nvidia gpu, git, ly login manager (if exists), enables gcr agent for ssh, disables systemd-networkd-wait-online.service that causes extremly long boot time
 - [setup-theme](install/setup-theme) - theming setup and symlinks
-- [setup-zsh](install/setup-zsh) - full zsh config with oh-my-zsh, plugins, nice features
 
 ## Table of Contents
 
 - [Features](#features)
 - [Installation](#installation)
+  - [Before you start (fresh Arch install)](#before-you-start-fresh-arch-install)
   - [Automatic installer](#automatic-installer)
   - [Manual installation](#manual-installation)
-- [Screenshots & Videos](#screenshots--videos)
 - [Keybinds](#keybinds)
 - [Theming & Customization](#theming--customization)
   - [Customizing Configs](#customizing-configs)
@@ -51,18 +34,28 @@ Quick info:
 ## Features
 
 - **Everforest Theme** - Hardcoded Everforest theme with the Omarchy waybar style, plus a wallpaper picker (Waypaper) and cycler for your own backgrounds
-- **Utility Scripts** - Interactive package management; setup of Postgres & database backup and restoration, Docker, Node.js; video download (with yt-dlp), video and image transcoding (using handbrakecli and imagemagick), interactive backups with fzf
-- **Modular ZSH Config** - Zsh setup with some nice custom functions like `cp2c` (copy file content to clipboard - c2pc <file_path>) and `c2f` (clipboard content to file c2f <file_path>)
-- **Application Configs** - Configs for Ghostty, Waybar, Walker, Elephant, lazyvim and more
+- **Utility Scripts** - System update checker/updater, power profile switching, monitor brightness control (DDC/CI or brightnessctl), night light & idle toggles, wallpaper cycling, and a searchable keybindings cheat-sheet — most are wired into Walker/Elephant menus
+- **Application Configs** - Configs for Alacritty, Waybar, Walker, Elephant, and more
 
 ---
 
 ## Installation
 
+### Before you start (fresh Arch install)
+
+If you're starting from a completely blank machine:
+1. Boot the Arch ISO and run `archinstall`.
+2. Pick the **Hyprland** profile, and make sure **git** is included in your package selection — it's required to bootstrap the installer below.
+3. Finish `archinstall` and reboot.
+4. Log in (a plain TTY login is fine, you don't need to be inside Hyprland yet) and run the [automatic installer](#automatic-installer) command below.
+5. Once it finishes, reboot and pick **"Hyprland (uwsm managed)"** in your login manager (sddm/gdm/ly) — this is required for the `bin/` scripts to be in `PATH` and for things to actually work.
+
+Monitor auto-detection works best if you're already inside a Hyprland session when you run the installer (it needs `hyprctl`). If you install from a bare TTY like above, it'll just keep the default monitor config and tell you how to re-run detection once you've logged into Hyprland for the first time.
+
 ### Automatic installer
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Maciejonos/dotfiles/master/setup.sh | bash
+curl -fsSL https://raw.githubusercontent.com/NickSishchuk/dotfiles/master/setup.sh | bash
 ```
 
 **⚠️ Important Notes:**
@@ -79,7 +72,6 @@ curl -fsSL https://raw.githubusercontent.com/Maciejonos/dotfiles/master/setup.sh
   - Files in `~/.config`
   - `pacman.conf`
   - Ly display manager configuration (if installed)
-  - ZSH and LazyVim configs
   - Everything else that gets modified
 - Creates a backup folder in your Home directory with:
   - A text file listing all changed files
@@ -98,7 +90,7 @@ curl -fsSL https://raw.githubusercontent.com/Maciejonos/dotfiles/master/setup.sh
 
 The installer [detects your hardware](install/setup-by-hardware):
 - **Laptop/Desktop** - Uses brightnessctl or ddcutil respectively, applies proper Hyprland keybinding profiles
-- **Monitor Configuration** - Checks your monitor's highest resolution and refresh rate with `hyprctl monitors` and creates appropriate `monitors.conf`
+- **Monitor Configuration** - Checks your monitor's highest resolution and refresh rate with `hyprctl monitors` and creates appropriate `monitors.conf` (only works if Hyprland is already running when you install — otherwise it keeps the default and can be re-run later)
 - **Nvidia GPUs** - Detects Nvidia cards and applies [Nvidia-specific setup](install/setup-nvidia) with proper Hyprland env configs
 </details>
 
@@ -113,12 +105,11 @@ The installer [detects your hardware](install/setup-by-hardware):
 <details>
 <summary><b>Scripts</b></summary>
 
-A big collection of scripts, mainly used with Walker & Elephant. If installing manually make sure to add the scripts folder to path:
+A small collection of scripts, mainly used with Walker & Elephant. If installing manually make sure to add the scripts folder to path:
+- **System** - Update checker & one-shot updater, power profile switching
+- **Display** - Monitor brightness control, night light toggle, idle/lock status toggle
 - **Wallpaper** - Cycle through your backgrounds
-- **Development** - PostgreSQL setup/backup/restore, Docker setup, Node.js setup
-- **Package Management** - Install/remove packages interactively
-- **Media Tools** - Video downloads (yt-dlp), transcoding (ffmpeg, handbrake-cli)
-- **System Utils** - Backup/restore files, keybinds, screenshots menu and video recording
+- **Walker/Elephant helpers** - Keybindings cheat-sheet, app/service restart helpers
 - Most scripts are accessible interactively through Walker or Elephant
 </details>
 
@@ -130,7 +121,6 @@ A big collection of scripts, mainly used with Walker & Elephant. If installing m
   - Ly display manager (if installed)
   - Pacman configuration
   - UFW firewall
-- Full [ZSH setup](default/zshrc) with modular configuration
 </details>
 
 ### Manual installation
@@ -138,57 +128,54 @@ A big collection of scripts, mainly used with Walker & Elephant. If installing m
 You can manually use the dotfiles without the installer:
 1. Clone the repository
 2. Copy desired configs from `config/` to `~/.config/` (some configs live in [default](default) directory. Also everything relies on the scripts folder being in path)
-3. Copy scripts from `bin/` to your preferred location
-4. You can use some install scripts for partial setup if you want
-
----
-
-## Screenshots & videos
-
-### Waybar
-Omarchy waybar
-![Waybar1](demo/waybar-omarchy.png)
-
-### Lazyvim
-![Lazyvim](demo/lazyvim.png)
-
-### Menu overview
-https://github.com/user-attachments/assets/9b9cb437-a3e4-4cd7-90f1-80175036e196
-
-### Application Launcher - Walker
-![Walker](demo/walker.png)
-
-### Desktop Overview
-<table>
-  <tr>
-    <td><img src="demo/1.png" width="400"/></td>
-    <td><img src="demo/6.png" width="400"/></td>
-  </tr>
-  <tr>
-    <td><img src="demo/4.png" width="400"/></td>
-    <td><img src="demo/2.png" width="400"/></td>
-  </tr>
-  <tr>
-    <td><img src="demo/7.png" width="400"/></td>
-    <td><img src="demo/3.png" width="400"/></td>
-  </tr>
-</table>
+3. Copy scripts from `bin/` to your preferred location (make sure it's on your `PATH`)
+4. You can use some install scripts for partial setup if you want — e.g. `install/setup-theme` for just the theme symlinks, or `install/setup-by-hardware` for keybindings/monitor detection
 
 ---
 
 ## Keybinds
 Just press SUPER + ALT + Space -> keybindings - all bindings nicely sorted here
 
-Most important ones:
-- SUPER + Q	= Open Terminal
+**Apps & windows:**
+- SUPER + Q = Open terminal
+- SUPER + B = Open browser
+- SUPER + E = Open file manager
 - SUPER + W = Close window
-- SUPER + R = Open Walker
-- SUPER + E = File manager
-- SUPER + V = Clipboard
-- SUPER + ALT + Space = Menu
-- SUPER + CTRL + W = Open Waypaper (pick a wallpaper from your backgrounds folder)
+- SUPER + SHIFT + W = Quit app and all its windows
+- SUPER + F = Fullscreen
+- SUPER + M = Maximize
+- SUPER + T = Toggle floating
+- SUPER + arrows = Move focus
+- SUPER + SHIFT + arrows = Resize active window
+- SUPER + ALT + arrows = Swap window
+- ALT + Tab = Cycle windows
 
-Walker bindings - `ctrl + x` to go back from submenu
+**Workspaces:**
+- SUPER + [0-9] = Switch to workspace
+- SUPER + SHIFT + [0-9] = Move window to workspace
+- SUPER + Tab / SUPER + SHIFT + Tab = Next/previous workspace
+- SUPER + CTRL + Down = Jump to next empty workspace
+
+**Walker & Elephant:**
+- SUPER + R = Open Walker (app launcher)
+- SUPER + ALT + Space = Main menu
+- SUPER + Escape = System menu (lock/suspend/restart/shutdown)
+- SUPER + V = Clipboard history
+- SUPER + Print = Screenshot menu
+- Print = Screenshot region to clipboard
+- `ctrl + x` inside any Walker submenu = go back
+
+**Wallpaper & theming:**
+- SUPER + CTRL + W = Open Waypaper (pick a wallpaper)
+- Next wallpaper (from the main menu) = cycle your own backgrounds
+
+**Display & media:**
+- Brightness Up/Down keys = Adjust monitor brightness
+- Volume Up/Down/Mute keys = Adjust volume
+- Media Play/Pause/Next/Prev keys = Control playback
+- SUPER + CTRL + N = Toggle night light
+
+Some binds differ slightly between the laptop and desktop keybinding profiles (auto-selected by the installer) — check `menu-keybindings` on your machine for the exact list.
 
 ---
 
@@ -205,8 +192,4 @@ Theming is hardcoded to Everforest with the Omarchy waybar style - no theme swit
 
 ## Credits
 
-By no means am I claiming I created all of this myself - the waybar style and some scripts originally came from [Omarchy](https://omarchy.org) - of course a lot are my own or heavily changed. I wanted something more of my own, that I can customize more easily without installing a full distro. Omarchy is an awesome project, and if you haven't heard of it, you should definitely check it out!
-
-Other projects that I really like:
-- https://github.com/mylinuxforwork
-- https://github.com/elifouts/Dotfiles
+This is a heavily trimmed-down, minimalistic fork of [mkbula/dotfiles](https://github.com/mkbula/dotfiles) — check out the original for the full-featured version this is based on.
