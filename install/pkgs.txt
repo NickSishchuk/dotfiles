@@ -23,7 +23,7 @@ starship
 
 # Hyprland Ecosystem
 hyprland
-hyprland-qtutils
+hyprland-guiutils
 hyprland-qt-support
 hyprpaper
 hyprpicker
