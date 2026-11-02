@@ -59,7 +59,7 @@ curl -fsSL https://raw.githubusercontent.com/NickSishchuk/dotfiles/master/setup.
 ```
 
 **⚠️ Important Notes:**
-- This is specifically for **Arch Linux with Hyprland**
+- This is specifically for **Arch Linux with Hyprland 0.55 or newer** (the config is Lua, `hyprland.lua`)
 - I've tested the installer on both fresh installs and configured desktops, but ideally you should **know what you're doing**, make sure to backup manually just in case
 - Everything that will be changed is backed up first
 
@@ -90,7 +90,7 @@ curl -fsSL https://raw.githubusercontent.com/NickSishchuk/dotfiles/master/setup.
 
 The installer [detects your hardware](install/setup-by-hardware):
 - **Laptop/Desktop** - Uses brightnessctl or ddcutil respectively, applies proper Hyprland keybinding profiles
-- **Monitor Configuration** - Checks your monitor's highest resolution and refresh rate with `hyprctl monitors` and creates appropriate `monitors.conf` (only works if Hyprland is already running when you install — otherwise it keeps the default and can be re-run later)
+- **Monitor Configuration** - Checks your monitor's highest resolution and refresh rate with `hyprctl monitors` and creates an appropriate `monitors.lua` (only works if Hyprland is already running when you install — otherwise it keeps the default and can be re-run later)
 - **Nvidia GPUs** - Detects Nvidia cards and applies [Nvidia-specific setup](install/setup-nvidia) with proper Hyprland env configs
 </details>
 

@@ -1,65 +1,19 @@
 #!/bin/bash
 
-hypr_config="$HOME/.config/hypr/hyprland.conf"
-config_file=$(grep -E 'source.*keybindings\.conf' "$hypr_config" | awk '{print $3}')
-
-config_file="${config_file/#\~/$HOME}"
-
-if [[ -z "$config_file" || ! -f "$config_file" ]]; then
-  config_file="$HOME/.local/share/dotfiles/default/hypr/conf/desktop-keybindings.conf"
-fi
-
+# Lists every keybinding that has a description, straight from the running
+# Hyprland (hyprctl binds), so it works with the Lua config and always matches
+# what is actually loaded.
 parse_keybindings() {
-  awk -F'#' '
-    # Extract variable definitions
-    /^\$mainMod/ {
-      gsub(/.*=[ \t]*/, "", $1)
-      mainMod = $1
-      next
-    }
-    /^\$terminal/ {
-      gsub(/.*=[ \t]*/, "", $1)
-      terminal = $1
-      next
-    }
-
-    # Process bind lines with descriptions
-    /^bind[em]? = / && NF > 1 {
-      binding = $1
-      desc = $2
-
-      # Clean up description
-      gsub(/^[ \t]+|[ \t]+$/, "", desc)
-
-      # Skip if no description
-      if (desc == "") next
-
-      # Extract the part after "bind[em]? = "
-      sub(/^bind[em]? = /, "", binding)
-
-      # Split on first comma to get modifiers+key
-      match(binding, /([^,]*),[ \t]*([^,]+)/, parts)
-      mods = parts[1]
-      key = parts[2]
-
-      # Resolve variables
-      gsub(/\$mainMod/, mainMod, mods)
-      gsub(/\$terminal/, terminal, key)
-
-      # Clean up whitespace
-      gsub(/^[ \t]+|[ \t]+$/, "", mods)
-      gsub(/^[ \t]+|[ \t]+$/, "", key)
-
-      # Format output
-      if (mods == "" || mods == " ") {
-        key_combo = key
-      } else {
-        key_combo = mods " + " key
-      }
-
-      printf "%-35s → %s\n", key_combo, desc
-    }
-  ' "$config_file"
+  hyprctl binds -j | jq -r '
+    def mods:
+      [ (if ((.modmask / 64 | floor) % 2) == 1 then "SUPER" else empty end),
+        (if ((.modmask / 4  | floor) % 2) == 1 then "CTRL"  else empty end),
+        (if ((.modmask / 8  | floor) % 2) == 1 then "ALT"   else empty end),
+        (if (.modmask % 2) == 1                 then "SHIFT" else empty end) ];
+    .[]
+    | select(.has_description and .description != "")
+    | "\((mods + [.key]) | join(" + "))\t\(.description)"
+  ' | awk -F'\t' '{ printf "%-35s → %s\n", $1, $2 }'
 }
 
 monitor_height=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .height')
