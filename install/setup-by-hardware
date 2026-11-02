@@ -6,59 +6,57 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source "$SCRIPT_DIR/lib/helpers.sh"
 source "$SCRIPT_DIR/lib/backup.sh"
 DOTFILES_DIR="$HOME/.local/share/dotfiles"
-HYPRLAND_CONF="$HOME/.config/hypr/hyprland.conf"
+HYPRLAND_CONF="$HOME/.config/hypr/hyprland.lua"
 
 log_info "Configuring hardware-specific settings..."
 
 # Determine which environment and keybindings to use
 if has_nvidia_gpu; then
-  ENV_CONF="nvidia-env.conf"
+  ENV_CONF="nvidia-env"
   log_detail "Detected NVIDIA GPU"
 else
-  ENV_CONF="env.conf"
+  ENV_CONF="env"
 fi
 
 HARDWARE=$(detect_hardware_type)
 if [ "$HARDWARE" = "laptop" ]; then
   spinner "Installing brightnessctl..." paru --noconfirm -S brightnessctl
-  KEYBIND_CONF="laptop-keybindings.conf"
+  KEYBIND_CONF="laptop-keybindings"
   log_detail "Detected laptop hardware"
 else
   spinner "Installing ddcutil..." paru --noconfirm -S ddcutil
-  KEYBIND_CONF="desktop-keybindings.conf"
+  KEYBIND_CONF="desktop-keybindings"
   log_detail "Detected desktop hardware"
 fi
 
-# Remove any existing env/keybinding lines first
-sed -i '/source = .*\/\(nvidia-env\.conf\|env\.conf\)$/d' "$HYPRLAND_CONF"
-sed -i '/source = .*\/\(laptop-keybindings\.conf\|desktop-keybindings\.conf\)$/d' "$HYPRLAND_CONF"
+# hyprland.lua always has one env line and one keybindings line; point them at
+# the files for this hardware.
+CONF_PREFIX='require("~/.local/share/dotfiles/default/hypr/conf/'
+sed -i -E "s#^(require\(\"~/\.local/share/dotfiles/default/hypr/conf/)(nvidia-env|env)(\"\))#\1${ENV_CONF}\3#" "$HYPRLAND_CONF"
+sed -i -E "s#^(require\(\"~/\.local/share/dotfiles/default/hypr/conf/)(laptop-keybindings|desktop-keybindings)(\"\))#\1${KEYBIND_CONF}\3#" "$HYPRLAND_CONF"
 
-# Insert correct ones for current hardware
-sed -i "/source = .*autostart\\.conf/a source = ~/.local/share/dotfiles/default/hypr/conf/${ENV_CONF}\\nsource = ~/.local/share/dotfiles/default/hypr/conf/${KEYBIND_CONF}" "$HYPRLAND_CONF"
-
-# sed's address-based insert is a silent no-op if the anchor line isn't found
-# (e.g. hyprland.conf was hand-edited). That would mean no env config and no
-# keybindings get sourced at all, with zero error — verify it actually landed.
-if grep -q "${ENV_CONF}" "$HYPRLAND_CONF" && grep -q "${KEYBIND_CONF}" "$HYPRLAND_CONF"; then
+# sed is a silent no-op if those lines were removed or hand-edited. That would
+# mean no env config and no keybindings at all, with zero error, so verify.
+if grep -qF "${CONF_PREFIX}${ENV_CONF}\")" "$HYPRLAND_CONF" && grep -qF "${CONF_PREFIX}${KEYBIND_CONF}\")" "$HYPRLAND_CONF"; then
   log_success "Hardware-specific configuration applied"
 else
-  log_error "Could not insert ${ENV_CONF}/${KEYBIND_CONF} into hyprland.conf (anchor line not found) — env vars and keybindings will NOT load until fixed manually"
+  log_error "Could not find the env/keybindings require() lines in hyprland.lua — env vars and keybindings will NOT load until fixed manually"
 fi
 
 # Auto-configure monitors if Hyprland is running
 if command -v hyprctl &>/dev/null && hyprctl monitors &>/dev/null; then
   log_info "Detecting monitor configuration..."
 
-  MONITORS_CONF="$HOME/.config/hypr/conf/monitors.conf"
+  MONITORS_CONF="$HOME/.config/hypr/conf/monitors.lua"
   TEMP_CONF=$(mktemp)
 
-  echo "env = GDK_SCALE,1" > "$TEMP_CONF"
+  echo 'hl.env("GDK_SCALE", "1")' > "$TEMP_CONF"
   echo "" >> "$TEMP_CONF"
 
   # Parse hyprctl output and extract highest mode for each monitor
   hyprctl monitors | awk '
     /^Monitor / {
-      if (monitor) print "monitor=" monitor "," mode ",auto,1"
+      if (monitor) printf "hl.monitor({ output = \"%s\", mode = \"%s\", position = \"auto\", scale = 1 })\n", monitor, mode
       monitor = $2
       gsub(/[()]/, "", monitor)
       mode = ""
@@ -86,12 +84,12 @@ if command -v hyprctl &>/dev/null && hyprctl monitors &>/dev/null; then
       }
     }
     END {
-      if (monitor && mode) print "monitor=" monitor "," mode ",auto,1"
+      if (monitor && mode) printf "hl.monitor({ output = \"%s\", mode = \"%s\", position = \"auto\", scale = 1 })\n", monitor, mode
     }
   ' >> "$TEMP_CONF"
 
   # Only update if we got valid output
-  if grep -q "^monitor=" "$TEMP_CONF"; then
+  if grep -q "^hl.monitor" "$TEMP_CONF"; then
     mv "$TEMP_CONF" "$MONITORS_CONF"
     log_success "Auto-configured monitor"
   else
